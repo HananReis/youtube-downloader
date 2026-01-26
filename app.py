@@ -6,6 +6,12 @@ app = Flask(__name__)
 
 DOWNLOAD_DIR = "downloads"
 
+# Rota principal (pra não dar Not Found)
+@app.route("/")
+def home():
+    return "API Online. Use /download (POST) ou /file/<filename> (GET)"
+
+# Rota para baixar o vídeo (POST)
 @app.route("/download", methods=["POST"])
 def download():
     data = request.get_json()
@@ -16,21 +22,28 @@ def download():
     url = data["url"]
 
     try:
-        filename = baixar_video(url)
+        # garante que a pasta existe
+        os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+
+        # baixa o vídeo dentro da pasta downloads
+        filename = baixar_video(url, DOWNLOAD_DIR)
+
         return jsonify({
             "status": "ok",
             "file": filename
         })
+
     except Exception as e:
         return jsonify({
             "status": "error",
             "message": str(e)
         }), 500
 
+# Rota para acessar o arquivo e baixar
 @app.route("/file/<filename>")
 def get_file(filename):
     return send_from_directory(DOWNLOAD_DIR, filename, as_attachment=True)
 
 if __name__ == "__main__":
     os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-    app.run()
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))

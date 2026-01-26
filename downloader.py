@@ -1,22 +1,16 @@
-import yt_dlp
-import uuid
+from yt_dlp import YoutubeDL
 import os
 
-DOWNLOAD_DIR = "downloads"
-
-def baixar_video(url):
-    video_id = str(uuid.uuid4())
-    output_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.%(ext)s")
+def baixar_video(url, pasta="downloads"):
+    os.makedirs(pasta, exist_ok=True)
 
     ydl_opts = {
-        "outtmpl": output_path,
-        "format": "bestvideo+bestaudio/best",
-        "merge_output_format": "mp4",
-        "quiet": True
+        "outtmpl": os.path.join(pasta, "%(title)s.%(ext)s"),
+        "format": "best"
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+    with YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        filename = ydl.prepare_filename(info)
 
-    # retorna o nome final do arquivo mp4
-    return f"{video_id}.mp4"
+    return os.path.basename(filename)
