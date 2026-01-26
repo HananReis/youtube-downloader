@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+downloads/
+backend/downloads/
+*.mp4
+*.part
+.env
