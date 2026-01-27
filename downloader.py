@@ -6,7 +6,9 @@ def baixar_video(url, pasta="downloads"):
 
     ydl_opts = {
         "outtmpl": os.path.join(pasta, "%(title)s.%(ext)s"),
-        "format": "best"
+        "format": "best[ext=mp4]/best",
+        "merge_output_format": "mp4",
+        "noplaylist": True,
     }
 
     with YoutubeDL(ydl_opts) as ydl:
