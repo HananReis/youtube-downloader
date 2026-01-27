@@ -4,7 +4,7 @@ function enviar() {
 
     resultado.textContent = "Baixando, aguarde...";
 
-    fetch("http://127.0.0.1:5000/download", {
+    fetch("/download", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -14,13 +14,14 @@ function enviar() {
     .then(response => response.json())
     .then(data => {
         if (data.status === "ok") {
-            const link = `http://127.0.0.1:5000/file/${data.file}`;
+            const link = `/file/${data.file}`;
             resultado.innerHTML = `<a href="${link}">Clique para baixar o vídeo</a>`;
         } else {
             resultado.textContent = "Erro: " + data.message;
         }
     })
-    .catch(() => {
+    .catch(err => {
         resultado.textContent = "Erro na requisição";
+        console.error(err);
     });
 }
