@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, render_template
 from downloader import baixar_video
 import os
 
@@ -9,7 +9,7 @@ DOWNLOAD_DIR = "downloads"
 # Rota principal (pra não dar Not Found)
 @app.route("/")
 def home():
-    return "API Online. Use /download (POST) ou /file/<filename> (GET)"
+    return render_template("index.html")
 
 # Rota para baixar o vídeo (POST)
 @app.route("/download", methods=["POST"])
