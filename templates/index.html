@@ -2,18 +2,17 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Downloader</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>YouTube Viewer</title>
 </head>
 <body>
 
-    <h1>Baixar vídeo</h1>
+<h2>Abrir vídeo do YouTube</h2>
 
-    <input type="text" id="url" placeholder="Cole o link aqui">
-    <button onclick="enviar()">Baixar</button>
+<input type="text" id="url" placeholder="Cole o link do YouTube">
+<button onclick="abrir()">Abrir</button>
 
-    <pre id="resultado"></pre>
+<div id="player" style="margin-top:20px;"></div>
 
-    <script src="/static/script.js"></script>
+<script src="/static/script.js"></script>
 </body>
 </html>
