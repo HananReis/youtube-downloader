@@ -200,6 +200,34 @@ def admin_publish(post_id):
         update_post(post_id, post['title'], post['content'], new_state)
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/post/<int:post_id>')
+def show_post(post_id):
+    """Visualizar post completo"""
+    post = get_post_by_id(post_id)
+    if not post or post['published'] == 0:
+        return render_template('index.html'), 404
+    return render_template('post.html', post=post)
+
+# Garantir que a tabela exista (útil em deploys, ex: Railway)
+def ensure_db():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            published INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Executar criação da tabela ao importar o módulo (gunicorn/railway irão executar)
+ensure_db()
+
 # ============ TRATAMENTO DE ERROS ============
 
 @app.errorhandler(404)

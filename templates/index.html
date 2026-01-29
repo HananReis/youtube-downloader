@@ -4,8 +4,19 @@
 
 {% block content %}
     <div class="texto">
-        <p>
-            o trabalho esta ocorrendo
-        </p>
+        {% if posts and posts|length > 0 %}
+            <h2>Posts publicados</h2>
+            <ul class="posts-home">
+                {% for post in posts %}
+                    <li class="post-home-item">
+                        <h3><a href="/post/{{ post['id'] }}">{{ post['title'] }}</a></h3>
+                        <div class="meta">{{ post['created_at'][:10] }}</div>
+                        <p>{{ post['content'][:250] }}{% if post['content']|length > 250 %}...{% endif %}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Não há posts publicados no momento.</p>
+        {% endif %}
     </div>
 {% endblock %}
