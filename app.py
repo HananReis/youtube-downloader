@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
@@ -17,6 +17,18 @@ def informacoes():
 @app.route("/contato")
 def contato():
     return render_template("paginas/contanto.html")
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"}), 200
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("index.html"), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template("index.html"), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
