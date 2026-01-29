@@ -1,20 +1,16 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 40px;
+    margin: 0;
+    padding: 0;
 }
 
-input {
-    width: 400px;
-    padding: 8px;
+header, footer {
+    background: #222;
+    color: white;
+    padding: 20px;
+    text-align: center;
 }
 
-button {
-    padding: 8px 16px;
-    margin-left: 10px;
-}
-
-pre {
-    margin-top: 20px;
-    background: #eee;
-    padding: 10px;
+main {
+    padding: 40px;
 }

@@ -2,17 +2,23 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>YouTube Viewer</title>
+    <title>{% block title %}Meu Site{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<h2>Abrir vídeo do YouTube</h2>
+<header>
+    <h1>Meu Site</h1>
+    <p>Construindo do zero</p>
+</header>
 
-<input type="text" id="url" placeholder="Cole o link do YouTube">
-<button onclick="abrir()">Abrir</button>
+<main>
+    {% block content %}{% endblock %}
+</main>
 
-<div id="player" style="margin-top:20px;"></div>
+<footer>
+    <p>© 2026</p>
+</footer>
 
-<script src="/static/script.js"></script>
 </body>
 </html>
