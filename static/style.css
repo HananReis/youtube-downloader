@@ -47,7 +47,7 @@ main {
 }
 .texto {
     font-family: "Times New Roman", Times, serif;
-    font-size: 12pt;
+    font-size: 18px;
     line-height: 1.5;
     text-align: justify;
 }
@@ -78,15 +78,18 @@ footer {
     list-style: none;
     padding: 10px;
     margin: 0;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    padding-left: 40px;
 }
 .main-nav a {
     color: #fff;
     text-decoration: none;
-    padding: 8px 12px;
+    padding: 16px 24px;
     border-radius: 4px;
     border: 1px solid #fff;
+    font-size: 18px;
+    font-weight: bold;
 }
 .main-nav a:hover {
     background: #fff;
