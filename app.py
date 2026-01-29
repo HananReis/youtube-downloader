@@ -18,7 +18,7 @@ def page(name):
     template = mapping.get(name)
     if not template:
         abort(404)
-    return render_template(template)
+    return render_template('base.html', **{'content_template': template})
 
 if __name__ == "__main__":
     app.run(debug=True)

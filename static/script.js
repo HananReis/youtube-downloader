@@ -13,16 +13,11 @@ document.addEventListener("DOMContentLoaded", function() {
 			if (!res.ok) throw new Error('Erro ao carregar página');
 			const text = await res.text();
 
-			// Se a resposta contém uma tag <main>, extrai seu conteúdo; senão usa o texto todo
-			let content = text;
-			try {
-				const parser = new DOMParser();
-				const doc = parser.parseFromString(text, 'text/html');
-				const m = doc.querySelector('main');
-				if (m) content = m.innerHTML;
-			} catch (e) {
-				// fallback: usar text
-			}
+			// Extrair conteúdo do <main> da resposta HTML completa
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(text, 'text/html');
+			const m = doc.querySelector('main');
+			const content = m ? m.innerHTML : text;
 
 			main.innerHTML = content;
 			setActive(linkEl);
