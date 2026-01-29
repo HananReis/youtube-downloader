@@ -11,13 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		try {
 			const res = await fetch(`/page/${name}`);
 			if (!res.ok) throw new Error('Erro ao carregar página');
-			const text = await res.text();
-
-			// Extrair conteúdo do <main> da resposta HTML completa
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(text, 'text/html');
-			const m = doc.querySelector('main');
-			const content = m ? m.innerHTML : text;
+			const content = await res.text();
 
 			main.innerHTML = content;
 			setActive(linkEl);

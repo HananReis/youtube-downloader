@@ -23,11 +23,7 @@
 </nav>
 
 <main id="main-content">
-    {% if content_template %}
-        {% include content_template %}
-    {% else %}
-        {% block content %}{% endblock %}
-    {% endif %}
+    {% block content %}{% endblock %}
 </main>
 
 <footer>
