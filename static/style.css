@@ -3,12 +3,12 @@ html, body {
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Times New Roman", Times, serif;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 200vh;
 }
 
 header, footer {
@@ -58,7 +58,7 @@ main {
 }
 .pet {
     font-family: "Times New Roman", Times, serif;
-    font-size: 12pt;
+    font-size: 20pt;
     line-height: 1.5;
     text-align: center;
 }
@@ -100,12 +100,12 @@ footer {
 /* Aumentar fonte em 30% em telas pequenas (celular) */
 @media (max-width: 600px) {
     .texto {
-        font-size: calc(12pt * 1.3);
+        font-size: calc(20pt * 1.3);
     }
     .texto p {
         font-size: inherit;
     }
     .pet {
-        font-size: calc(12pt * 1.3);
+        font-size: calc(20pt * 1.3);
     }
 }
