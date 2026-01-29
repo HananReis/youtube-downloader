@@ -1,4 +1,5 @@
 from flask import Flask, render_template, abort
+import re
 
 app = Flask(__name__)
 
@@ -18,36 +19,26 @@ def page(name):
     template = mapping.get(name)
     if not template:
         abort(404)
-    # Renderizar template (que estende base.html) mas extrair apenas o conteúdo
-    html = render_template(template)
-    # Extrair conteúdo do <main>
-    from html.parser import HTMLParser
-    class MainExtractor(HTMLParser):
-        def __init__(self):
-            super().__init__()
-            self.in_main = False
-            self.content = []
-            self.main_found = False
-        
-        def handle_starttag(self, tag, attrs):
-            if tag == 'main':
-                self.in_main = True
-                self.main_found = True
-        
-        def handle_endtag(self, tag):
-            if tag == 'main':
-                self.in_main = False
-        
-        def handle_data(self, data):
-            if self.in_main:
-                self.content.append(data)
     
-    extractor = MainExtractor()
-    extractor.feed(html)
-    
-    if extractor.main_found and extractor.content:
-        return ''.join(extractor.content)
-    return html
+    try:
+        # Renderizar o template completo
+        html = render_template(template)
+        
+        # Extrair conteúdo entre <main id="main-content"> e </main>
+        match = re.search(r'<main\s+id=["\']main-content["\'][^>]*>(.*?)</main>', html, re.DOTALL)
+        
+        if match:
+            content = match.group(1)
+            # Remove tags script que possam estar no conteúdo
+            content = re.sub(r'<script[^>]*>.*?</script>', '', content, flags=re.DOTALL)
+            return content
+        
+        return html
+    except Exception as e:
+        return f'<p>Erro ao carregar página: {str(e)}</p>', 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import os
+    # Para Railway, a porta é definida pela variável de ambiente PORT
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
