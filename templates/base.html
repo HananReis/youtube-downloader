@@ -13,7 +13,16 @@
     <h1>Trabalhos Academicos</h1>
 </header>
 
-<main>
+<nav class="main-nav">
+    <ul>
+        <li><a href="#" data-page="index">Início</a></li>
+        <li><a href="#" data-page="modelos">Modelos</a></li>
+        <li><a href="#" data-page="informacoes">Informações</a></li>
+        <li><a href="#" data-page="contato">Contato</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
     {% block content %}{% endblock %}
 </main>
 
@@ -21,6 +30,8 @@
     <p>Este site foi desenvolvidos com o intuido de ajudar a construção de trabalhos Academicos</p>
     <p>© 2026</p>
 </footer>
+
+<script src="../static/script.js"></script>
 
 </body>
 </html>
