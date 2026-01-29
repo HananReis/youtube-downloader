@@ -45,5 +45,5 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	// opcional: carregar a página inicial via AJAX ao abrir
 	const initial = document.querySelector('.main-nav a[data-page="index"]');
-	if (initial) setTimeout(() => loadPage('index', initial), 0);
+	if (initial) loadPage('index', initial);
 });

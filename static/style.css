@@ -96,8 +96,9 @@ footer {
     color: #000;
 }
 .main-nav a.active {
-    background: #000;
-    color: #fff;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
 }
 
 /* Aumentar fonte em 30% em telas pequenas (celular) */
