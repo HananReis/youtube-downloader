@@ -1,27 +1,24 @@
-function enviar() {
+function extrairVideoID(url) {
+    const regex = /(?:v=|\/)([0-9A-Za-z_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+}
+
+function abrir() {
     const url = document.getElementById("url").value;
-    const resultado = document.getElementById("resultado");
+    const player = document.getElementById("player");
 
-    resultado.textContent = "Baixando, aguarde...";
+    const videoId = extrairVideoID(url);
 
-    fetch("/download", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ url: url })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === "ok") {
-            const link = `/file/${data.file}`;
-            resultado.innerHTML = `<a href="${link}">Clique para baixar o vídeo</a>`;
-        } else {
-            resultado.textContent = "Erro: " + data.message;
-        }
-    })
-    .catch(err => {
-        resultado.textContent = "Erro na requisição";
-        console.error(err);
-    });
+    if (!videoId) {
+        player.innerHTML = "Link inválido";
+        return;
+    }
+
+    player.innerHTML = `
+        <iframe width="560" height="315"
+        src="https://www.youtube.com/embed/${videoId}"
+        frameborder="0"
+        allowfullscreen></iframe>
+    `;
 }
