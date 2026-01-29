@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Dashboard</title>
+    <link rel="stylesheet" href="../../static/style.css?v=2">
+    <style>
+        .admin-header {
+            background: #000;
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .admin-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .admin-header a {
+            background: #fff;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            border: 2px solid #fff;
+            transition: 0.2s;
+        }
+        
+        .admin-header a:hover {
+            background: #000;
+            color: #fff;
+            border-color: #fff;
+        }
+        
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .btn-new {
+            display: inline-block;
+            margin-bottom: 30px;
+            padding: 12px 24px;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            border: 2px solid #000;
+            transition: 0.2s;
+        }
+        
+        .btn-new:hover {
+            background: #fff;
+            color: #000;
+        }
+        
+        .posts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .post-item {
+            border: 2px solid #000;
+            padding: 20px;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        
+        .post-item h3 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+        
+        .post-meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .post-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .published {
+            background: #4caf50;
+            color: #fff;
+        }
+        
+        .draft {
+            background: #ff9800;
+            color: #fff;
+        }
+        
+        .post-content {
+            margin: 15px 0;
+            color: #333;
+            max-height: 100px;
+            overflow: hidden;
+            border-left: 4px solid #000;
+            padding-left: 15px;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .post-actions a,
+        .post-actions button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            border: 1px solid #000;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+        
+        .edit-btn {
+            background: #2196f3;
+            color: #fff;
+            border-color: #2196f3;
+        }
+        
+        .edit-btn:hover {
+            background: #1976d2;
+        }
+        
+        .publish-btn {
+            background: #4caf50;
+            color: #fff;
+            border-color: #4caf50;
+        }
+        
+        .publish-btn:hover {
+            background: #388e3c;
+        }
+        
+        .unpublish-btn {
+            background: #ff9800;
+            color: #fff;
+            border-color: #ff9800;
+        }
+        
+        .unpublish-btn:hover {
+            background: #f57c00;
+        }
+        
+        .delete-btn {
+            background: #f44336;
+            color: #fff;
+            border-color: #f44336;
+        }
+        
+        .delete-btn:hover {
+            background: #d32f2f;
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-header">
+    <h1>📋 Painel de Admin</h1>
+    <div>
+        <a href="/admin/new">+ Novo Post</a>
+        <a href="/logout" style="margin-left: 10px;">Logout</a>
+    </div>
+</div>
+
+<div class="admin-container">
+    {% if posts %}
+        <div class="posts-list">
+            {% for post in posts %}
+                <div class="post-item">
+                    <div>
+                        <h3>{{ post['title'] }}</h3>
+                        <div class="post-meta">
+                            <span class="post-status {% if post['published'] %}published{% else %}draft{% endif %}">
+                                {% if post['published'] %}✓ Publicado{% else %}📝 Rascunho{% endif %}
+                            </span>
+                            <span>{{ post['created_at'][:10] }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="post-content">{{ post['content'][:150] }}...</div>
+                    
+                    <div class="post-actions">
+                        <a href="/admin/edit/{{ post['id'] }}" class="edit-btn">Editar</a>
+                        
+                        <form method="POST" action="/admin/publish/{{ post['id'] }}" style="display: inline; margin: 0;">
+                            <button type="submit" class="{% if post['published'] %}unpublish-btn{% else %}publish-btn{% endif %}">
+                                {% if post['published'] %}Despublicar{% else %}Publicar{% endif %}
+                            </button>
+                        </form>
+                        
+                        <form method="POST" action="/admin/delete/{{ post['id'] }}" style="display: inline; margin: 0;" onsubmit="return confirm('Tem certeza que deseja deletar este post?');">
+                            <button type="submit" class="delete-btn">Deletar</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-message">
+            <p>Nenhum post criado ainda.</p>
+            <a href="/admin/new" class="btn-new">Criar primeiro post</a>
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
