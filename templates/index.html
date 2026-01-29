@@ -1,25 +1,8 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Trabalhos Academicos{% endblock %}</title>
-    <link rel="stylesheet" href="../static/style.css">
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>-->
-</head>
-<body>
+{% extends "base.html" %}
 
-<header>
-    <h1>Trabalhos Academicos</h1>
-</header>
+{% block title %}Início{% endblock %}
 
-<main>
-    {% block content %}{% endblock %}
-</main>
-
-<footer>
-    <p>Este site foi desenvolvidos com o intuido de ajudar a construção de trabalhos Academicos</p>
-    <p>© 2026</p>
-</footer>
-
-</body>
-</html>
+{% block content %}
+    <h2>Bem-vindo</h2>
+    <p>Este site está sendo criado do zero.</p>
+{% endblock %}
