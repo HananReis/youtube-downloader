@@ -14,3 +14,14 @@ header, footer {
 main {
     padding: 40px;
 }
+.texto {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 12pt;
+    line-height: 1.5;
+    text-align: justify;
+}
+
+.texto p {
+    text-indent: 1.25cm; /* recuo de parágrafo padrão ABNT */
+    margin-bottom: 12pt;
+}
