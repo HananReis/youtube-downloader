@@ -7,10 +7,14 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 import uuid
 
-# Caminho fixo do banco (arquivo no root do projeto)
-DB_PATH = os.path.join(os.path.dirname(__file__), 'database', 'database-post.db')
-# Garantir que a pasta exista, mas NÃO recriar tabelas automaticamente (usar init_db.py manualmente)
-os.makedirs(os.path.join(os.path.dirname(__file__), 'database'), exist_ok=True)
+# Caminho fixo do banco (arquivo no volume de dados do ambiente, ex: Railway)
+# Usar /data/database-post.db (ABSOLUTO) para persistência em platform volumes
+DB_PATH = '/data/database-post.db'
+# Garantir que a pasta exista (silenciar erros de permissão quando não aplicável)
+try:
+    os.makedirs('/data', exist_ok=True)
+except PermissionError:
+    pass
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -19,12 +23,13 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 ADMIN_USER = os.environ.get('ADMIN_USER', 'admin')
 ADMIN_PASS = os.environ.get('ADMIN_PASS', 'admin123')
 
-# Configurar SQLAlchemy para usar o arquivo dentro da pasta 'database/'
+# Configurar SQLAlchemy para usar o arquivo no volume de dados (/data)
 from flask_sqlalchemy import SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'database-post.db')}"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////data/database-post.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Inicializar SQLAlchemy (não criar tabelas automaticamente aqui)
-db = SQLAlchemy(app) 
+db = SQLAlchemy(app)
+
 
 # ============ FUNÇÕES AUXILIARES ============
 

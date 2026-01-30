@@ -2,11 +2,14 @@ import os
 import sqlite3
 from app import app, db
 
-# Caminho do arquivo dentro da pasta 'database/'
-db_path = os.path.join(os.path.dirname(__file__), 'database', 'database-post.db')
+# Caminho do arquivo em /data para persistência de volume
+db_path = '/data/database-post.db'
 
-# Garantir pasta
-os.makedirs(os.path.dirname(db_path), exist_ok=True)
+# Garantir pasta /data (silenciar erros de permissão quando não aplicável)
+try:
+    os.makedirs('/data', exist_ok=True)
+except PermissionError:
+    pass
 
 # Registrar modelos e criar tabelas (APENAS se não existirem)
 with app.app_context():

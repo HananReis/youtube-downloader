@@ -233,7 +233,7 @@
                         </div>
                     </div>
                     
-                    <div class="post-content">{{ post['content'][:150] }}...</div>
+                    <div class="post-content">{{ post['content'][:150]|safe }}{% if post['content']|length > 150 %}...{% endif %}</div> 
                     
                     <div class="post-actions">
                         <a href="/admin/edit/{{ post['id'] }}" class="edit-btn">Editar</a>

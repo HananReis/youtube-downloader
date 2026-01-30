@@ -6,7 +6,7 @@ import os
 import sqlite3
 from datetime import datetime
 
-DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'database', 'database-post.db'))
+DB_PATH = os.path.abspath('/data/database-post.db')
 
 from sqlite3 import OperationalError
 

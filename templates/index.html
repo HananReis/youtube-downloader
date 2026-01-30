@@ -11,7 +11,7 @@
                     <li class="post-home-item">
                         <h3><a href="/post/{{ post['id'] }}">{{ post['title'] }}</a></h3>
                         <div class="meta">{{ post['created_at'][:10] }}</div>
-                        <p>{{ post['content'][:250] }}{% if post['content']|length > 250 %}...{% endif %}</p>
+                        <div class="post-excerpt">{{ post['content'][:250]|safe }}{% if post['content']|length > 250 %}...{% endif %}</div> 
                     </li>
                 {% endfor %}
             </ul>
