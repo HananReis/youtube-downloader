@@ -5,22 +5,62 @@ uma API leve que pode ser usada por outras partes do projeto no futuro.
 import os
 import sqlite3
 
-DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'database.db'))
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'database-post.db'))
+
+from sqlite3 import OperationalError
 
 class SiteConfig:
     @staticmethod
     def get(key, default=None):
-        conn = sqlite3.connect(DB_PATH)
-        cur = conn.cursor()
-        cur.execute('SELECT value FROM site_config WHERE key=?', (key,))
-        row = cur.fetchone()
-        conn.close()
-        return row[0] if row else default
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cur = conn.cursor()
+            cur.execute('SELECT value FROM site_config WHERE key=?', (key,))
+            row = cur.fetchone()
+            conn.close()
+            return row[0] if row else default
+        except OperationalError:
+            return default
 
     @staticmethod
     def set(key, value):
-        conn = sqlite3.connect(DB_PATH)
-        cur = conn.cursor()
-        cur.execute('INSERT OR REPLACE INTO site_config (key, value) VALUES (?, ?)', (key, value))
-        conn.commit()
-        conn.close()
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cur = conn.cursor()
+            cur.execute('INSERT OR REPLACE INTO site_config (key, value) VALUES (?, ?)', (key, value))
+            conn.commit()
+            conn.close()
+            return True
+        except OperationalError:
+            return False
+
+# Helper para posts (uso via sqlite3 direto; manter compatibilidade com o app atual)
+class Post:
+    @staticmethod
+    def all(published_only=False):
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            if published_only:
+                cur.execute('SELECT * FROM posts WHERE published=1 ORDER BY created_at DESC')
+            else:
+                cur.execute('SELECT * FROM posts ORDER BY created_at DESC')
+            rows = cur.fetchall()
+            conn.close()
+            return rows
+        except OperationalError:
+            return []
+
+    @staticmethod
+    def get(post_id):
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM posts WHERE id=?', (post_id,))
+            row = cur.fetchone()
+            conn.close()
+            return row
+        except OperationalError:
+            return None

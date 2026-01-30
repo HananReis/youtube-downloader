@@ -187,6 +187,34 @@
     <div>
         <a href="/admin/new">+ Novo Post</a>
         <a href="/logout" style="margin-left: 10px;">Logout</a>
+        <div style="display:inline-block; margin-left:16px; vertical-align:middle;">
+            <form method="POST" action="/admin/font_size" style="display:inline; margin-right:6px;">
+                <input type="hidden" name="action" value="decrease">
+                <button type="submit" style="padding:6px 10px;">A−</button>
+            </form>
+            <span style="margin: 0 8px; font-weight:bold;">Fonte: {{ site_font_size }}</span>
+            <form method="POST" action="/admin/font_size" style="display:inline; margin-right:6px;">
+                <input type="hidden" name="action" value="increase">
+                <button type="submit" style="padding:6px 10px;">A+</button>
+            </form>
+            <form method="POST" action="/admin/font_size" style="display:inline; margin-left:8px; margin-right:12px;">
+                <input type="hidden" name="action" value="reset">
+                <button type="submit" style="padding:6px 10px;">Reset</button>
+            </form>
+
+            <!-- Seletor de família de fonte -->
+            <form method="POST" action="/admin/font_family" style="display:inline; vertical-align:middle;">
+                <label for="font_family" style="margin-right:6px; font-weight:bold;">Fonte:</label>
+                <select name="font_family" id="font_family" style="padding:6px 8px;">
+                    <option value="Arial" {% if site_font_family == 'Arial' %}selected{% endif %}>Arial</option>
+                    <option value="Times New Roman" {% if site_font_family == 'Times New Roman' %}selected{% endif %}>Times New Roman</option>
+                    <option value="Verdana" {% if site_font_family == 'Verdana' %}selected{% endif %}>Verdana</option>
+                    <option value="Georgia" {% if site_font_family == 'Georgia' %}selected{% endif %}>Georgia</option>
+                </select>
+                <button type="submit" style="padding:6px 10px; margin-left:8px;">Salvar</button>
+            </form>
+            <span style="margin-left:10px; font-weight:bold;">Atual: {{ site_font_family }}</span>
+        </div>
     </div>
 </div>
 

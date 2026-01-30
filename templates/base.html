@@ -3,9 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Trabalhos Academicos ES{% endblock %}</title>
-    <link rel="stylesheet" href="../static/style.css?v=2">
-    <link rel="icon" type="image/x-icon" href="../static/icon.png">
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icon.png') }}">
+    <style>
+        :root {
+            --site-font-size: {{ site_font_size }};
+            --site-font-family: "{{ site_font_family }}";
+        }
+    </style>
 </head>
 <body>
 
@@ -32,7 +38,7 @@
     <p>© 2026</p>
 </footer>
 
-<script src="../static/script.js?v=2"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
 </html>
