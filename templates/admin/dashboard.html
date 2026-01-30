@@ -187,6 +187,21 @@
     <div>
         <a href="/admin/new">+ Novo Post</a>
         <a href="/logout" style="margin-left: 10px;">Logout</a>
+        <div style="display:inline-block; margin-left:16px; vertical-align:middle;">
+            <form method="POST" action="/admin/font_size" style="display:inline; margin-right:6px;">
+                <input type="hidden" name="action" value="decrease">
+                <button type="submit" style="padding:6px 10px;">A−</button>
+            </form>
+            <span style="margin: 0 8px; font-weight:bold;">Fonte: {{ site_font_size }}</span>
+            <form method="POST" action="/admin/font_size" style="display:inline; margin-right:6px;">
+                <input type="hidden" name="action" value="increase">
+                <button type="submit" style="padding:6px 10px;">A+</button>
+            </form>
+            <form method="POST" action="/admin/font_size" style="display:inline; margin-left:8px;">
+                <input type="hidden" name="action" value="reset">
+                <button type="submit" style="padding:6px 10px;">Reset</button>
+            </form>
+        </div>
     </div>
 </div>
 

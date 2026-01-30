@@ -1,0 +1,19 @@
+/* Regras relacionadas ao controle global de fonte do site */
+:root {
+    /* valor padrão é injetado por base.html */
+}
+
+html, body {
+    /* garantir que tamanhos relativos respeitem a variável */
+    font-size: var(--site-font-size);
+}
+
+/* Ajustes específicos caso necessário */
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
+}
+
+/* Aumentar legibilidade das postagens */
+.post-full, .texto {
+    font-size: inherit;
+}

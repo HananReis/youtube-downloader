@@ -3,6 +3,8 @@ import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from datetime import datetime, timedelta
 from functools import wraps
+from werkzeug.utils import secure_filename
+import uuid
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -13,6 +15,8 @@ ADMIN_PASS = os.environ.get('ADMIN_PASS', 'admin123')
 
 # Caminho do banco de dados
 DB_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
+# Pasta para uploads de imagens via editor
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
 
 # ============ FUNÇÕES AUXILIARES ============
 
@@ -200,6 +204,65 @@ def admin_publish(post_id):
         update_post(post_id, post['title'], post['content'], new_state)
     return redirect(url_for('admin_dashboard'))
 
+
+@app.route('/admin/upload_image', methods=['POST'])
+@login_required
+def admin_upload_image():
+    """Recebe upload de imagem do editor, valida e salva em /static/uploads"""
+    if 'image' not in request.files:
+        return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'Nome de arquivo inválido'}), 400
+
+    ALLOWED_EXT = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+    filename = secure_filename(file.filename)
+    if '.' not in filename:
+        return jsonify({'error': 'Extensão inválida'}), 400
+    ext = filename.rsplit('.', 1)[1].lower()
+    if ext not in ALLOWED_EXT:
+        return jsonify({'error': 'Extensão não permitida'}), 400
+
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    unique_name = f"{uuid.uuid4().hex}.{ext}"
+    save_path = os.path.join(UPLOAD_FOLDER, unique_name)
+    file.save(save_path)
+
+    url = url_for('static', filename=f'uploads/{unique_name}')
+    return jsonify({'url': url}), 200
+
+
+@app.route('/admin/font_size', methods=['POST'])
+@login_required
+def admin_font_size():
+    """Aumentar/Diminuir/Resetar o tamanho da fonte do site"""
+    action = request.form.get('action')
+    current = get_config('font_size', '18px')
+    try:
+        # extrai número da string, ex: '18px' -> 18
+        current_value = int(''.join(filter(str.isdigit, current)))
+    except Exception:
+        current_value = 18
+
+    if action == 'increase':
+        current_value += 1
+    elif action == 'decrease':
+        current_value = max(12, current_value - 1)
+    elif action == 'reset':
+        current_value = 18
+    else:
+        return redirect(url_for('admin_dashboard'))
+
+    set_config('font_size', f"{current_value}px")
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.context_processor
+def inject_site_font_size():
+    """Injetar site_font_size em todos os templates"""
+    fs = get_config('font_size', '18px')
+    return dict(site_font_size=fs)
+
 @app.route('/post/<int:post_id>')
 def show_post(post_id):
     """Visualizar post completo"""
@@ -222,11 +285,41 @@ def ensure_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
+    # Tabela simples para configurações do site (ex: font_size)
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS site_config (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )
+    ''')
+
+    # Garantir valor padrão de font_size
+    cur.execute('SELECT value FROM site_config WHERE key=?', ('font_size',))
+    if not cur.fetchone():
+        cur.execute('INSERT INTO site_config (key, value) VALUES (?, ?)', ('font_size', '18px'))
+
     conn.commit()
     conn.close()
 
 # Executar criação da tabela ao importar o módulo (gunicorn/railway irão executar)
 ensure_db()
+
+# Helpers para configuração do site
+def get_config(key, default=None):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT value FROM site_config WHERE key=?', (key,))
+    row = cur.fetchone()
+    conn.close()
+    return row['value'] if row else default
+
+def set_config(key, value):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('INSERT OR REPLACE INTO site_config (key, value) VALUES (?, ?)', (key, value))
+    conn.commit()
+    conn.close()
 
 # ============ TRATAMENTO DE ERROS ============
 
