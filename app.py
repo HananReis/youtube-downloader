@@ -3,8 +3,6 @@ import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from datetime import datetime, timedelta
 from functools import wraps
-from werkzeug.utils import secure_filename
-import uuid
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -13,15 +11,8 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 ADMIN_USER = os.environ.get('ADMIN_USER', 'admin')
 ADMIN_PASS = os.environ.get('ADMIN_PASS', 'admin123')
 
-# Caminho do banco de dados (persistente em volume: /data/database.db)
-DB_PATH = os.environ.get('DB_PATH', '/data/database.db')
-# Config compatível com SQLAlchemy (se usado em deploys)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:////data/database.db')
-# Garantir diretório /data existe (não criar o banco ou tabelas automaticamente)
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-
-# Pasta para uploads de imagens via editor
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
+# Caminho do banco de dados
+DB_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
 
 # ============ FUNÇÕES AUXILIARES ============
 
@@ -209,84 +200,6 @@ def admin_publish(post_id):
         update_post(post_id, post['title'], post['content'], new_state)
     return redirect(url_for('admin_dashboard'))
 
-
-@app.route('/admin/upload_image', methods=['POST'])
-@login_required
-def admin_upload_image():
-    """Recebe upload de imagem do editor, valida e salva em /static/uploads"""
-    if 'image' not in request.files:
-        return jsonify({'error': 'Nenhum arquivo enviado'}), 400
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'error': 'Nome de arquivo inválido'}), 400
-
-    ALLOWED_EXT = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
-    filename = secure_filename(file.filename)
-    if '.' not in filename:
-        return jsonify({'error': 'Extensão inválida'}), 400
-    ext = filename.rsplit('.', 1)[1].lower()
-    if ext not in ALLOWED_EXT:
-        return jsonify({'error': 'Extensão não permitida'}), 400
-
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-    unique_name = f"{uuid.uuid4().hex}.{ext}"
-    save_path = os.path.join(UPLOAD_FOLDER, unique_name)
-    file.save(save_path)
-
-    url = url_for('static', filename=f'uploads/{unique_name}')
-    return jsonify({'url': url}), 200
-
-
-@app.route('/admin/font_size', methods=['POST'])
-@login_required
-def admin_font_size():
-    """Aumentar/Diminuir/Resetar o tamanho da fonte do site"""
-    action = request.form.get('action')
-    current = get_config('font_size', '18px')
-    try:
-        # extrai número da string, ex: '18px' -> 18
-        current_value = int(''.join(filter(str.isdigit, current)))
-    except Exception:
-        current_value = 18
-
-    if action == 'increase':
-        current_value += 1
-    elif action == 'decrease':
-        current_value = max(12, current_value - 1)
-    elif action == 'reset':
-        current_value = 18
-    else:
-        return redirect(url_for('admin_dashboard'))
-
-    success = set_config('font_size', f"{current_value}px")
-    # se falhar (p.ex. tabela inexistente), apenas redirecionar (evita perda de dados)
-    return redirect(url_for('admin_dashboard'))
-
-
-@app.route('/admin/font_family', methods=['POST'])
-@login_required
-def admin_font_family():
-    """Atualizar família de fonte global do site"""
-    family = request.form.get('font_family', '').strip()
-    if not family:
-        return redirect(url_for('admin_dashboard'))
-
-    # permitir apenas famílias seguras da lista permitida
-    allowed = ['Arial', 'Times New Roman', 'Verdana', 'Georgia']
-    if family not in allowed:
-        return redirect(url_for('admin_dashboard'))
-
-    set_config('font_family', family)
-    return redirect(url_for('admin_dashboard'))
-
-
-@app.context_processor
-def inject_site_font_size():
-    """Injetar site_font_size e site_font_family em todos os templates"""
-    fs = get_config('font_size', '18px')
-    family = get_config('font_family', 'Times New Roman')
-    return dict(site_font_size=fs, site_font_family=family)
-
 @app.route('/post/<int:post_id>')
 def show_post(post_id):
     """Visualizar post completo"""
@@ -295,36 +208,25 @@ def show_post(post_id):
         return render_template('index.html'), 404
     return render_template('post.html', post=post)
 
-# Nota importante: NÃO criar ou recriar tabelas automaticamente aqui.
-# Em ambientes gerenciados (Railway, Docker, etc) mantenha o banco em /data/database.db
-# e migre/crie tabelas manualmente (p.ex. usando um script de inicialização `init_db.py`).
+# Garantir que a tabela exista (útil em deploys, ex: Railway)
+def ensure_db():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            published INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-# Helpers para configuração do site com tolerância à ausência da tabela site_config
-from sqlite3 import OperationalError
-
-def get_config(key, default=None):
-    try:
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute('SELECT value FROM site_config WHERE key=?', (key,))
-        row = cur.fetchone()
-        conn.close()
-        return row['value'] if row else default
-    except OperationalError:
-        # tabela não existe ou outro problema; retornar default sem criar nada
-        return default
-
-def set_config(key, value):
-    try:
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute('INSERT OR REPLACE INTO site_config (key, value) VALUES (?, ?)', (key, value))
-        conn.commit()
-        conn.close()
-        return True
-    except OperationalError:
-        # tabela não existe: não criar automaticamente (política do deploy)
-        return False
+# Executar criação da tabela ao importar o módulo (gunicorn/railway irão executar)
+ensure_db()
 
 # ============ TRATAMENTO DE ERROS ============
 
