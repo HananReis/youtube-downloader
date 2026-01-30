@@ -5,3 +5,6 @@ backend/downloads/
 *.mp4
 *.part
 .env
+# Database files - persistent volumes should not be versioned
+/database.db
+/data/database.db

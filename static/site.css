@@ -6,6 +6,8 @@
 html, body {
     /* garantir que tamanhos relativos respeitem a variável */
     font-size: var(--site-font-size);
+    /* família global controlada por variável */
+    font-family: var(--site-font-family), serif;
 }
 
 /* Ajustes específicos caso necessário */
