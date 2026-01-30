@@ -4,8 +4,9 @@ uma API leve que pode ser usada por outras partes do projeto no futuro.
 """
 import os
 import sqlite3
+from datetime import datetime
 
-DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'database-post.db'))
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'database', 'database-post.db'))
 
 from sqlite3 import OperationalError
 
@@ -64,3 +65,20 @@ class Post:
             return row
         except OperationalError:
             return None
+
+
+# SQLAlchemy model (opcional) — adicionado para permitir db.create_all sem alterar helpers existentes
+try:
+    from app import db
+    class PostSQL(db.Model):
+        __tablename__ = 'posts'
+        id = db.Column(db.Integer, primary_key=True)
+        title = db.Column(db.Text, nullable=False)
+        content = db.Column(db.Text, nullable=False)
+        published = db.Column(db.Integer, default=0)
+        created_at = db.Column(db.DateTime, default=datetime.utcnow)
+        updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+except Exception:
+    # db pode não estar disponível em tempo de importação (p.ex. durante testes); continuar sem erro
+    pass
+

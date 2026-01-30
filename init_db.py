@@ -1,46 +1,36 @@
-import sqlite3
-import os
-
-# Criar banco de dados (arquivo na raiz do projeto: database-post.db)
 import os
 import sqlite3
+from app import app, db
 
-db_path = os.path.join(os.path.dirname(__file__), 'database-post.db')
+# Caminho do arquivo dentro da pasta 'database/'
+db_path = os.path.join(os.path.dirname(__file__), 'database', 'database-post.db')
 
+# Garantir pasta
 os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+# Registrar modelos e criar tabelas (APENAS se não existirem)
+with app.app_context():
+    # Importar models para garantir que as classes SQLAlchemy sejam registradas
+    import models  # noqa: F401
+    db.create_all()
+
+# Inserir/garantir valores padrão em site_config sem apagar tabelas/dados
 conn = sqlite3.connect(db_path)
-cursor = conn.cursor()
-
-# Criar tabela de posts (APENAS se não existir)
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS posts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        published INTEGER DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
+cur = conn.cursor()
+cur.execute('''
+CREATE TABLE IF NOT EXISTS site_config (
+    key TEXT PRIMARY KEY,
+    value TEXT
+)
 ''')
-
-# Criar tabela de configurações do site (APENAS se não existir)
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS site_config (
-        key TEXT PRIMARY KEY,
-        value TEXT
-    )
-''')
-
-# Inserir valores padrão sem apagar dados
-cursor.execute('SELECT value FROM site_config WHERE key=?', ('font_size',))
-if not cursor.fetchone():
-    cursor.execute('INSERT INTO site_config (key, value) VALUES (?, ?)', ('font_size', '18px'))
-
-cursor.execute('SELECT value FROM site_config WHERE key=?', ('font_family',))
-if not cursor.fetchone():
-    cursor.execute('INSERT INTO site_config (key, value) VALUES (?, ?)', ('font_family', 'Times New Roman'))
-
+cur.execute('SELECT value FROM site_config WHERE key=?', ('font_size',))
+if not cur.fetchone():
+    cur.execute('INSERT INTO site_config (key, value) VALUES (?, ?)', ('font_size', '18px'))
+cur.execute('SELECT value FROM site_config WHERE key=?', ('font_family',))
+if not cur.fetchone():
+    cur.execute('INSERT INTO site_config (key, value) VALUES (?, ?)', ('font_family', 'Times New Roman'))
 conn.commit()
 conn.close()
 
-print(f"✓ Banco de dados criado/verificado em: {db_path}")
+print(f"✓ Banco criado/verificado em: {db_path}")
+print("Rode este script manualmente: python init_db.py. Este script NÃO roda automaticamente no start do app.")
